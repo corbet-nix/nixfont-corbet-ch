@@ -19,7 +19,11 @@
     geist-mono = { arch = "ttf-geist-mono"; nixpkgs = "geist-font"; };
     meslo-nerd = { arch = "ttf-meslo-nerd"; nixpkgs = "nerd-fonts.meslo-lg"; };
     geist-mono-nerd = { arch = "otf-geist-mono-nerd"; nixpkgs = null; };
-    awesome-terminal = { arch = "awesome-terminal-fonts"; nixpkgs = "awesome-terminal-fonts"; };
+    # nixpkgs has no awesome-terminal-fonts. nerd-fonts.symbols-only is the equivalent by
+    # PURPOSE -- a symbol/glyph-only font for shell prompts and status bars -- not the same
+    # upstream project. Named here rather than left null because a host asking for prompt glyphs
+    # gets what it actually wanted; if that substitution is wrong for you, set it to null.
+    awesome-terminal = { arch = "awesome-terminal-fonts"; nixpkgs = "nerd-fonts.symbols-only"; };
   };
 
   # ── Document / print compatibility ──────────────────────────────────────────────────────────
@@ -29,7 +33,9 @@
   document = {
     liberation = { arch = "ttf-liberation"; nixpkgs = "liberation_ttf"; };
     ms-core = { arch = "ttf-ms-fonts"; nixpkgs = "corefonts"; };
-    gsfonts = { arch = "gsfonts"; nixpkgs = "gsfonts"; };
+    # gyre, not "gsfonts": nixpkgs ships the URW base35 successors under that name, and they are
+    # what ghostscript actually resolves the standard PostScript families to.
+    gsfonts = { arch = "gsfonts"; nixpkgs = "gyre-fonts"; };
     dejavu = { arch = "ttf-dejavu"; nixpkgs = "dejavu_fonts"; };
     archivo = { arch = "otf-archivo"; nixpkgs = null; };
   };
