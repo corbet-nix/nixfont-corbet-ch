@@ -12,6 +12,7 @@
     inter = { arch = "inter-font"; nixpkgs = "inter"; };
     cantarell = { arch = "cantarell-fonts"; nixpkgs = "cantarell-fonts"; };
     geist = { arch = "ttf-geist"; nixpkgs = "geist-font"; };
+    source-sans = { arch = "adobe-source-sans-fonts"; nixpkgs = "source-sans"; };
   };
 
   # ── Monospace / terminal ────────────────────────────────────────────────────────────────────
@@ -24,6 +25,9 @@
     # upstream project. Named here rather than left null because a host asking for prompt glyphs
     # gets what it actually wanted; if that substitution is wrong for you, set it to null.
     awesome-terminal = { arch = "awesome-terminal-fonts"; nixpkgs = "nerd-fonts.symbols-only"; };
+    source-code-pro = { arch = "adobe-source-code-pro-fonts"; nixpkgs = "source-code-pro"; };
+    jetbrains-mono-nerd = { arch = "ttf-jetbrains-mono-nerd"; nixpkgs = "nerd-fonts.jetbrains-mono"; };
+    font-awesome = { arch = "otf-font-awesome"; nixpkgs = "font-awesome"; };
   };
 
   # ── Document / print compatibility ──────────────────────────────────────────────────────────
@@ -38,6 +42,9 @@
     gsfonts = { arch = "gsfonts"; nixpkgs = "gyre-fonts"; };
     dejavu = { arch = "ttf-dejavu"; nixpkgs = "dejavu_fonts"; };
     archivo = { arch = "otf-archivo"; nixpkgs = null; };
+    source-serif = { arch = "adobe-source-serif-fonts"; nixpkgs = "source-serif"; };
+    # No nixpkgs equivalent under any of bitstream-vera-fonts / vera-fonts / ttf-bitstream-vera.
+    bitstream-vera = { arch = "ttf-bitstream-vera"; nixpkgs = null; };
   };
 
   # ── Unicode coverage ────────────────────────────────────────────────────────────────────────
@@ -47,5 +54,6 @@
     noto = { arch = "noto-fonts"; nixpkgs = "noto-fonts"; };
     noto-cjk = { arch = "noto-fonts-cjk"; nixpkgs = "noto-fonts-cjk-sans"; };
     noto-emoji = { arch = "noto-fonts-emoji"; nixpkgs = "noto-fonts-emoji"; };
+    noto-extra = { arch = "noto-fonts-extra"; nixpkgs = "noto-fonts-extra"; };
   };
 }
