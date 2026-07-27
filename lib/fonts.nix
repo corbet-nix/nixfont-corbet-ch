@@ -11,13 +11,13 @@
   ui = {
     inter = { arch = "inter-font"; nixpkgs = "inter"; };
     cantarell = { arch = "cantarell-fonts"; nixpkgs = "cantarell-fonts"; };
-    geist = { arch = "ttf-geist"; nixpkgs = "geist-font"; };
+    geist = { arch = "ttf-geist"; nixpkgs = "geist-font"; aur = true; };
     source-sans = { arch = "adobe-source-sans-fonts"; nixpkgs = "source-sans"; };
   };
 
   # ── Monospace / terminal ────────────────────────────────────────────────────────────────────
   mono = {
-    geist-mono = { arch = "ttf-geist-mono"; nixpkgs = "geist-font"; };
+    geist-mono = { arch = "ttf-geist-mono"; nixpkgs = "geist-font"; aur = true; };
     meslo-nerd = { arch = "ttf-meslo-nerd"; nixpkgs = "nerd-fonts.meslo-lg"; };
     geist-mono-nerd = { arch = "otf-geist-mono-nerd"; nixpkgs = null; };
     # nixpkgs has no awesome-terminal-fonts. nerd-fonts.symbols-only is the equivalent by
@@ -36,12 +36,12 @@
   # no desktop at all.
   document = {
     liberation = { arch = "ttf-liberation"; nixpkgs = "liberation_ttf"; };
-    ms-core = { arch = "ttf-ms-fonts"; nixpkgs = "corefonts"; };
+    ms-core = { arch = "ttf-ms-fonts"; nixpkgs = "corefonts"; aur = true; };
     # gyre, not "gsfonts": nixpkgs ships the URW base35 successors under that name, and they are
     # what ghostscript actually resolves the standard PostScript families to.
     gsfonts = { arch = "gsfonts"; nixpkgs = "gyre-fonts"; };
     dejavu = { arch = "ttf-dejavu"; nixpkgs = "dejavu_fonts"; };
-    archivo = { arch = "otf-archivo"; nixpkgs = null; };
+    archivo = { arch = "otf-archivo"; nixpkgs = null; aur = true; };
     source-serif = { arch = "adobe-source-serif-fonts"; nixpkgs = "source-serif"; };
     # No nixpkgs equivalent under any of bitstream-vera-fonts / vera-fonts / ttf-bitstream-vera.
     bitstream-vera = { arch = "ttf-bitstream-vera"; nixpkgs = null; };

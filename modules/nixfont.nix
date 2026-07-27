@@ -80,6 +80,21 @@ in
       description = "Selected fonts as pacman package names, for a host's own reconciler to consume.";
     };
 
+    aurPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      readOnly = true;
+      description = ''
+        Selections that live in the AUR rather than an official repo, kept SEPARATE because
+        `pacman -S` cannot resolve them -- it fails the whole transaction with "target not found",
+        which takes the rest of the converge down with it. Wire them to the AUR side:
+
+          nixarch.packages.aur = config.nixfont.aurPackages;
+
+        With no `aurUser` configured the reconciler skips them with a warning, which is the right
+        failure mode: the packages stay as they are and nothing else breaks.
+      '';
+    };
+
     unavailableOnNixos = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       readOnly = true;
@@ -88,7 +103,8 @@ in
   };
 
   config = {
-    nixfont.archPackages = lib.unique (map (f: f.arch) selected);
+    nixfont.archPackages = lib.unique (map (f: f.arch) (lib.filter (f: !(f.aur or false)) selected));
+    nixfont.aurPackages = lib.unique (map (f: f.arch) (lib.filter (f: f.aur or false) selected));
     nixfont.unavailableOnNixos =
       lib.unique (map (f: f.arch) (lib.filter (f: f.nixpkgs == null) selected));
 
