@@ -28,6 +28,12 @@ let
     (map (k: catalogue.coverage.${k}) cfg.coverage)
   ];
 
+  # Arch only. A font declared here is still SELECTED -- it stays in `selected`, so fontconfig
+  # still emits its alias and `unavailableOnNixos` still counts it. All that changes is that this
+  # host does not ask pacman to install that particular package, because something else on the box
+  # already carries the family.
+  wantedOnArch = f: !(cfg.archProvidedElsewhere ? ${f.arch});
+
   # fontconfig's <alias> blocks: what "sans-serif" and friends actually resolve to. Written only
   # for the families the host asked for -- naming a default this host did not install is how you
   # get silent fallback to whatever fontconfig picks alphabetically.
@@ -95,6 +101,31 @@ in
       '';
     };
 
+    archProvidedElsewhere = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      example = lib.literalExpression ''
+        {
+          adobe-source-sans-fonts = "ttf-google-fonts-typewolf ships Source Sans 3 and conflicts with it";
+        }
+      '';
+      description = ''
+        Pacman package names this host gets from a DIFFERENT package, mapped to why. They are
+        dropped from `archPackages`/`aurPackages`; the family itself stays selected, because the
+        font is still on the box and `defaults` may legitimately name it.
+
+        This exists for Arch's `provides`/`conflicts` pairs. A bundle like
+        `ttf-google-fonts-typewolf` provides forty families at once and conflicts with each
+        individual package, so `pacman -S` on any of them dies with "unresolvable package
+        conflicts" and takes the whole converge with it. The only two ways out are to uninstall
+        the bundle -- losing the other thirty-nine families to satisfy a package *name* while the
+        font itself was never missing -- or to say so here.
+
+        A reason is mandatory rather than a bare list: an entry here is invisible in the resulting
+        package set, so six months later the only evidence it was deliberate is the string.
+      '';
+    };
+
     unavailableOnNixos = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       readOnly = true;
@@ -103,8 +134,10 @@ in
   };
 
   config = {
-    nixfont.archPackages = lib.unique (map (f: f.arch) (lib.filter (f: !(f.aur or false)) selected));
-    nixfont.aurPackages = lib.unique (map (f: f.arch) (lib.filter (f: f.aur or false) selected));
+    nixfont.archPackages =
+      lib.unique (map (f: f.arch) (lib.filter (f: !(f.aur or false) && wantedOnArch f) selected));
+    nixfont.aurPackages =
+      lib.unique (map (f: f.arch) (lib.filter (f: (f.aur or false) && wantedOnArch f) selected));
     nixfont.unavailableOnNixos =
       lib.unique (map (f: f.arch) (lib.filter (f: f.nixpkgs == null) selected));
 
