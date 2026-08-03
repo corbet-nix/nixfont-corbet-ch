@@ -28,6 +28,27 @@ let
     (map (k: catalogue.coverage.${k}) cfg.coverage)
   ];
 
+  # The families the SELECTED entries are actually known to render as, deduped. Only entries
+  # lib/fonts.nix could verify carry `families` at all -- see that file's header for why some are
+  # deliberately `[ ]` rather than guessed. This is therefore a floor, not a ceiling: a `defaults`
+  # value missing from it might still be a real, installed family this catalogue never verified.
+  selectedFamilies = lib.unique (lib.flatten (map (f: f.families or [ ]) selected));
+
+  # `defaults.*` as a uniform list, so the check below is one filter instead of four copies of it.
+  namedDefaults = lib.filterAttrs (_: v: v != null) cfg.defaults;
+
+  # The whole reason this exists: naming a font in `defaults` that nothing selected does not fail
+  # -- it silently substitutes, which is how a fleet's terminal spent weeks rendering in a
+  # proportional face over a stale `font=Hack` nobody had installed in years. A value present here
+  # was typed but never selected (or a typo of something that was); one string per offender,
+  # ready to hand straight to a platform backend's `warnings`.
+  unmatchedDefaults = lib.mapAttrsToList
+    (generic: family: ''
+      nixfont: defaults.${generic} = "${family}" does not match any selected font's known family
+      name (known: ${if selectedFamilies == [ ] then "none catalogued for this selection" else lib.concatStringsSep ", " selectedFamilies}).
+      Either it is a typo, or the catalogue entry that ships it was never added to nixfont.ui/mono/document/coverage.'')
+    (lib.filterAttrs (_: family: !(lib.elem family selectedFamilies)) namedDefaults);
+
   # Arch only. A font declared here is still SELECTED -- it stays in `selected`, so fontconfig
   # still emits its alias and `unavailableOnNixos` still counts it. All that changes is that this
   # host does not ask pacman to install that particular package, because something else on the box
@@ -78,6 +99,43 @@ in
       type = lib.types.lines;
       readOnly = true;
       description = "Generated fontconfig fragment. Both backends write this to the platform's conf.d.";
+    };
+
+    selected = lib.mkOption {
+      type = lib.types.listOf lib.types.attrs;
+      readOnly = true;
+      description = ''
+        The resolved catalogue entries for every family named in `ui`/`mono`/`document`/
+        `coverage`, in one flat list. The canonical "what did this host actually ask for" --
+        both platform backends should derive package lists from THIS, not re-categorize by
+        Arch's own AUR/pacman split the way an earlier version of the NixOS backend did (a
+        font that only exists in the AUR on Arch has no AUR at all on NixOS; excluding it from
+        `fonts.packages` because of an Arch-only distinction silently dropped it there).
+      '';
+    };
+
+    selectedFamilies = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      readOnly = true;
+      description = ''
+        Deduped fontconfig family names contributed by `families` on every selected catalogue
+        entry (see lib/fonts.nix). A floor, not a ceiling: entries lib/fonts.nix could not verify
+        contribute nothing here even when installed and real, so a `defaults` value missing from
+        this list is not proof it is wrong -- only `unmatchedDefaults` below draws that
+        conclusion, and only after also checking there is nothing to vouch for it.
+      '';
+    };
+
+    unmatchedDefaults = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      readOnly = true;
+      description = ''
+        One ready-to-print warning per `defaults.*` value that names a family nothing selected
+        actually provides. Both backends should fold this into their own `warnings`. Empty is not
+        proof every default is correct -- lib/fonts.nix leaves some entries' `families` empty on
+        purpose (see its header) -- but a non-empty result is real: the string was typed and
+        nothing selected backs it, which is exactly the shape of the bug this exists to catch.
+      '';
     };
 
     archPackages = lib.mkOption {
@@ -134,6 +192,10 @@ in
   };
 
   config = {
+    nixfont.selected = selected;
+    nixfont.selectedFamilies = selectedFamilies;
+    nixfont.unmatchedDefaults = unmatchedDefaults;
+
     nixfont.archPackages =
       lib.unique (map (f: f.arch) (lib.filter (f: !(f.aur or false) && wantedOnArch f) selected));
     nixfont.aurPackages =
