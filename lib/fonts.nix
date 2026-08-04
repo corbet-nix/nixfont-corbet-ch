@@ -30,13 +30,27 @@
   ui = {
     inter = { arch = "inter-font"; nixpkgs = "inter"; families = [ "Inter" ]; };
     cantarell = { arch = "cantarell-fonts"; nixpkgs = "cantarell-fonts"; families = [ "Cantarell" ]; };
-    geist = { arch = "ttf-geist"; nixpkgs = "geist-font"; aur = true; families = [ "Geist" ]; };
+    # AUR otf-geist, NOT ttf-geist. Both build the same upstream Vercel/Basement Studio family,
+    # but only one of them is what fontconfig actually resolves: `fc-match Geist` ->
+    # Geist-Regular.otf (confirmed live, 2026-08-04, on a host with both ttf-geist and otf-geist
+    # installed side by side). ttf-geist was declared here for months while the OTF build quietly
+    # did the rendering — a real package installed for a family that was never the one on screen.
+    # There is also a `ttf-geist-variable` AUR build; deliberately NOT declared, ever: `fc-list |
+    # grep -ci "geist.*variable"` returns 0 on a live host with it installed — it registers no
+    # faces at all, inert. Both otf-geist and otf-geist-mono are AUR-only, confirmed via
+    # `paru -Si otf-geist`/`otf-geist-mono` -> `Repository: aur` (no official Arch repo package
+    # exists for either), matching the AUR flag ttf-geist already carried.
+    geist = { arch = "otf-geist"; nixpkgs = "geist-font"; aur = true; families = [ "Geist" ]; };
     source-sans = { arch = "adobe-source-sans-fonts"; nixpkgs = "source-sans"; families = [ "Source Sans 3" ]; };
   };
 
   # ── Monospace / terminal ────────────────────────────────────────────────────────────────────
   mono = {
-    geist-mono = { arch = "ttf-geist-mono"; nixpkgs = "geist-font"; aur = true; families = [ "Geist Mono" ]; };
+    # otf-geist-mono, not ttf-geist-mono — same fc-match evidence as `ui.geist` above:
+    # `fc-match "Geist Mono"` -> GeistMono-Regular.otf. See that entry's own comment for the full
+    # reasoning (ttf-geist-mono shadowed by the OTF build; ttf-geist-mono-variable stays
+    # undeclared, 0 registered faces). AUR-only, same as ui.geist.
+    geist-mono = { arch = "otf-geist-mono"; nixpkgs = "geist-font"; aur = true; families = [ "Geist Mono" ]; };
     # Ships six independent widths (S/M/L, each plain and "DZ" -- dotted-zero); no single name is
     # THE family, so all six real ones are listed rather than picking one arbitrarily.
     meslo-nerd = {
