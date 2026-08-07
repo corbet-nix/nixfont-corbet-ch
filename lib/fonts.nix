@@ -49,13 +49,29 @@
     # packages at once, adobe-source-sans-fonts included).
     # Confirmed AUR-only: `pacman -Qm` lists it installed (20260112-1) but
     # `pacman -Si ttf-google-fonts-typewolf` finds nothing in the official repos (2026-08-07,
-    # corbet-elitebook).
+    # a live host with it installed).
     # nixpkgs's own `google-fonts` attribute is the entire Google Fonts corpus (thousands of
     # families) -- a different scope, not a name-drift rename of this curated 40 -- so left null
     # rather than pointed at something far wider than what this catalogue entry means.
     # By far the largest single package in nixfont's catalogue: 113.86 MiB installed (`pacman -Qi`,
     # same host/date) -- a host enabling this is taking that weight on deliberately.
-    typewolf = { arch = "ttf-google-fonts-typewolf"; nixpkgs = null; aur = true; };
+    #
+    # `providesInstead`: the bundle ships Source Sans 3 and Source Serif 4 -- the exact TYPEFACES
+    # `source-sans`/`source-serif` above resolve to -- packaged under ITS OWN name, not under
+    # adobe-source-sans-fonts/adobe-source-serif-fonts. Pacman's `provides`/`conflicts` metadata
+    # only ever talks about package NAMES, so it has no way to know the bundle already covers what
+    # those two packages would install; all it can see is the conflict (see
+    # modules/nixfont.nix's `archProvidedElsewhere` for what an unresolved conflict does to a
+    # `pacman -S` transaction). That makes the substitution a fact about THIS BUNDLE, not about
+    # whichever host happens to select it, so it belongs here rather than being rediscovered by
+    # every consumer. Named as catalogue KEYS, not raw package names, so a future rename of either
+    # Adobe package's `arch` value is picked up automatically instead of silently going stale.
+    # modules/nixfont.nix folds this into the exact same suppression `archProvidedElsewhere`
+    # already drives, and only when typewolf itself is selected -- see that module's own comment.
+    typewolf = {
+      arch = "ttf-google-fonts-typewolf"; nixpkgs = null; aur = true;
+      providesInstead = [ "source-sans" "source-serif" ];
+    };
   };
 
   # ── Monospace / terminal ────────────────────────────────────────────────────────────────────

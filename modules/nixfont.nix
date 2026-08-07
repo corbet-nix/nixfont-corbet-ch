@@ -28,6 +28,35 @@ let
     (map (k: catalogue.coverage.${k}) cfg.coverage)
   ];
 
+  # Every catalogue entry, keyed by its own table key, regardless of which of the four groups it
+  # lives in. `providesInstead` (see lib/fonts.nix's `typewolf` entry) names catalogue keys, not
+  # package names, and the entry it substitutes for need not share its group -- typewolf lives in
+  # `ui` but substitutes for `document.source-serif` as well as `ui.source-sans`. A single flat
+  # lookup resolves either without teaching each group about its siblings.
+  allEntries = lib.foldl' (acc: group: acc // group) { } (lib.attrValues catalogue);
+
+  # Pacman package names automatically withheld from the reconciler because a SELECTED entry's
+  # own `providesInstead` says it already ships that family under a different package. This is
+  # exactly the same fact `archProvidedElsewhere` below lets an operator state by hand -- computed
+  # here instead so it is expressed once, on the catalogue entry actually responsible for it,
+  # rather than rediscovered by every host that selects the bundle (see lib/fonts.nix's `typewolf`
+  # comment for why that makes it the bundle's property, not a selecting host's).
+  #
+  # Folded over `selected`, not the raw catalogue: an entry's `providesInstead` must contribute
+  # nothing unless that entry itself was actually picked, or a host that never selects typewolf
+  # would lose the Adobe packages it never conflicted with in the first place.
+  autoProvidedElsewhere = lib.foldl'
+    (acc: f: acc // lib.genAttrs
+      (map (k: allEntries.${k}.arch) (f.providesInstead or [ ]))
+      (pkg: "${f.arch} bundles this family under a different package name (see lib/fonts.nix)"))
+    { }
+    selected;
+
+  # The manual escape hatch always wins a key collision: an operator who wrote their own reason
+  # for a name should see THEIR string, not one this module generated. Both sources feed the one
+  # suppression path below (`wantedOnArch`) -- this module has only ever had the one mechanism.
+  allProvidedElsewhere = autoProvidedElsewhere // cfg.archProvidedElsewhere;
+
   # The families the SELECTED entries are actually known to render as, deduped. Only entries
   # lib/fonts.nix could verify carry `families` at all -- see that file's header for why some are
   # deliberately `[ ]` rather than guessed. This is therefore a floor, not a ceiling: a `defaults`
@@ -52,8 +81,9 @@ let
   # Arch only. A font declared here is still SELECTED -- it stays in `selected`, so fontconfig
   # still emits its alias and `unavailableOnNixos` still counts it. All that changes is that this
   # host does not ask pacman to install that particular package, because something else on the box
-  # already carries the family.
-  wantedOnArch = f: !(cfg.archProvidedElsewhere ? ${f.arch});
+  # already carries the family. Tested against `allProvidedElsewhere` (manual + auto-derived),
+  # never `cfg.archProvidedElsewhere` alone -- see that option's own doc comment.
+  wantedOnArch = f: !(allProvidedElsewhere ? ${f.arch});
 
   # fontconfig's <alias> blocks: what "sans-serif" and friends actually resolve to. Written only
   # for the families the host asked for -- naming a default this host did not install is how you
@@ -181,6 +211,14 @@ in
 
         A reason is mandatory rather than a bare list: an entry here is invisible in the resulting
         package set, so six months later the only evidence it was deliberate is the string.
+
+        This is the CONSUMER-FACING escape hatch for a conflict lib/fonts.nix does not (yet) know
+        about. Where the catalogue itself already knows -- typewolf's own `providesInstead`, see
+        its comment in lib/fonts.nix -- nixfont derives the same suppression automatically and a
+        host selecting that bundle need not repeat it here at all. The two sources merge (this
+        option wins a key collision, since a hand-written reason should never be silently
+        replaced) and both feed the identical `archPackages`/`aurPackages` filtering; this option
+        is for the conflicts the catalogue does not model, not a duplicate mechanism.
       '';
     };
 

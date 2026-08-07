@@ -58,6 +58,7 @@ legitimate answer — for a machine that never reads a visual document.
 | `flake.nix` | Flake entry point: `nixosModules.default` (NixOS install), `systemManagerModules.default` (Arch publish), and `nixfont.nix` (the module). |
 | `modules/` | Platform backends: `nixos.nix` and `arch.nix`. |
 | `lib/fonts.nix` | The font catalogue: one entry per selectable family, with platform-specific package names. |
+| `checks/` | Eval-time regression tests (`nix flake check`): no build, no VM -- evaluates the module and inspects what it renders. |
 
 ## Platform support
 
