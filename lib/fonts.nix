@@ -42,6 +42,20 @@
     # exists for either), matching the AUR flag ttf-geist already carried.
     geist = { arch = "otf-geist"; nixpkgs = "geist-font"; aur = true; families = [ "Geist" ]; };
     source-sans = { arch = "adobe-source-sans-fonts"; nixpkgs = "source-sans"; families = [ "Source Sans 3" ]; };
+    # AUR-only curated bundle: 40 Google Fonts hand-picked by Typewolf (typewolf.com/google-fonts)
+    # for UI/branding work -- source-sans above is one of the 40 it also ships, which is why
+    # `archProvidedElsewhere`'s own doc comment in modules/nixfont.nix already uses this exact
+    # package as its worked example (it `provides` and `conflicts` with all 40 individual ttf-*
+    # packages at once, adobe-source-sans-fonts included).
+    # Confirmed AUR-only: `pacman -Qm` lists it installed (20260112-1) but
+    # `pacman -Si ttf-google-fonts-typewolf` finds nothing in the official repos (2026-08-07,
+    # corbet-elitebook).
+    # nixpkgs's own `google-fonts` attribute is the entire Google Fonts corpus (thousands of
+    # families) -- a different scope, not a name-drift rename of this curated 40 -- so left null
+    # rather than pointed at something far wider than what this catalogue entry means.
+    # By far the largest single package in nixfont's catalogue: 113.86 MiB installed (`pacman -Qi`,
+    # same host/date) -- a host enabling this is taking that weight on deliberately.
+    typewolf = { arch = "ttf-google-fonts-typewolf"; nixpkgs = null; aur = true; };
   };
 
   # ── Monospace / terminal ────────────────────────────────────────────────────────────────────
