@@ -71,11 +71,11 @@ Cannot install packages itself.
 
 ## Related projects
 
-Part of the same independently-usable NixOS module family: [nixdev](https://github.com/julian-corbet/nixdev-corbet-ch)
-(operator tooling), [nixoffice](https://github.com/julian-corbet/nixoffice-corbet-ch) (documents half
-of a workstation), [nixprint](https://github.com/julian-corbet/nixprint-corbet-ch) (printing declared),
-and [nixram](https://github.com/julian-corbet/nixram-corbet-ch) (memory-pressure tuning).
+Part of the same independently-usable NixOS module family: [nixdev](https://github.com/corbet-nix/nixdev-corbet-ch)
+(operator tooling), [nixoffice](https://github.com/corbet-nix/nixoffice-corbet-ch) (documents half
+of a workstation), [nixprint](https://github.com/corbet-nix/nixprint-corbet-ch) (printing declared),
+and [nixram](https://github.com/corbet-nix/nixram-corbet-ch) (memory-pressure tuning).
 
-## License
+## Licence
 
-MIT License &copy; 2026 Julian Corbet
+Outbound licence is `MIT OR Apache-2.0`. See `LICENSE-MIT` and `LICENSE-APACHE`; every source file carries `SPDX-License-Identifier: MIT OR Apache-2.0`.

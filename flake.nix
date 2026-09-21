@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 {
   description = "nixfont — fonts as a shared concern: families, coverage, and the fontconfig defaults that make them actually resolve";
 

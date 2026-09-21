@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 # Font package names drift badly between distros (ttf-liberation vs liberation_ttf, ttf-ms-fonts
 # vs corefonts, noto-fonts-cjk vs noto-fonts-cjk-sans). This checks every non-null nixpkgs
 # attribute in lib/fonts.nix actually resolves, including dotted paths like nerd-fonts.meslo-lg.

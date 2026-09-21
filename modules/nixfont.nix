@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 #
 # nixfont — fonts as a shared concern, not a corner of somebody else's module.
 #

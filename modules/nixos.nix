@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 # NixOS backend — installs via fonts.packages and writes the same fontconfig fragment.
 { config, lib, pkgs, ... }:
 let

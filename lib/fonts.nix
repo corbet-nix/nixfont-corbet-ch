@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 #
 # The font catalogue: one entry per family, named on each platform.
 #

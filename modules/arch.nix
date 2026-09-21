@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
 # Arch backend — publishes the package list and writes the fontconfig fragment.
 #
 # Installs nothing: on Arch that is the host reconciler's job. Wire it with
